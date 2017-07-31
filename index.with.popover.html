@@ -72,23 +72,31 @@
                                                     ng-model="$parent.selected"
                                                     ng-show="ruleinarr[0]" 
                                                     class="form-control" 
-                                                    typeahead="rule as rule.elementName for rule in rules | filter:$viewValue | limitTo:20"
+                                                    typeahead="rule as rule.elementName for rule in rules | filter:$viewValue | limitTo:7"
                                                     typeahead-on-select="onSelectElement($item, $model, $label);$parent.selected=''"
                                                     ng-style="customstyle"
                                                     typeahead-min-length="0"
+                                                    popover-trigger="focus"
+                                                    popover-placement="right"
+                                                    uib-popover="{{dynamicPopover.content}}"
                                                     typeahead-focus
+                                                    popover-title="{{dynamicPopover.title}}"
                                                     ng-keyup = "customTextInput($event)" />
                                                 <input type="text" 
                                                     id="ruleText" 
                                                     ng-model="$parent.selected"
                                                     ng-show="ruleinarr[1]" 
                                                     class="form-control" 
-                                                    typeahead="rule as rule.value for rule in nextwords | filter:$viewValue | limitTo:20"
+                                                    typeahead="rule as rule.value for rule in nextwords | filter:$viewValue | limitTo:7"
                                                     typeahead-min-length="0"
                                                     typeahead-on-select="onSelectNextWords($item, $model, $label);$parent.selected=''"
                                                     typeahead-popup-template-url="typeAheadTemplate.html"
                                                     ng-style="customstyle"
+                                                    popover-trigger="focus"
+                                                    popover-placement="right"
                                                     typeahead-focus
+                                                    uib-popover="{{dynamicPopover.content}}" 
+                                                    popover-title="{{dynamicPopover.title}}"
                                                     ng-keyup = "customTextInput($event)" /> 
                                             </div>
                                         </form>

@@ -21,13 +21,16 @@ function _getSuggestionsWhenNothingIsChosen(grammarName, processedGrammars, term
 		return;
 	}
 	var grammar = grammars[grammarName];
+	if(!grammar) {
+		return;
+	}
 	var productions = grammar.productions;
 	
 	for(var index in productions) {
 		var production = productions[index];
 		// In case of a Terminal.
 		if(production.symbols[0].nonTerminal === false) {
-			terminals.push(new UserSelection(grammarName, production.symbols[0].symbol, 0, index, true));
+			terminals.push(new UserSelection(grammarName, production.symbols[0].symbol, 0, index, true, production.symbols[0].category, production.symbols[0].tokenType));
 			processedGrammars.push(grammarName);
 		}
 		// In case of a Non-Terminal
@@ -66,6 +69,7 @@ function getSuggestionsForUserSelection(userSelectionTrail) {
 }
 
 function _getSuggestionsForUserSelection(userSelectionTrail, processedGrammars, terminals) {
+    console.log("_getSuggestionsForUserSelection()\nInput : \n" + JSON.stringify(userSelectionTrail));
 	var userSelection = getTop(userSelectionTrail.selections);
 	var grammarName = userSelection.grammarName;
 	var chosenSymbol = userSelection.chosenSymbol;
@@ -112,25 +116,44 @@ function _getSuggestionsForUserSelection(userSelectionTrail, processedGrammars, 
 		
 		// chop off the just completed grammar selections from userSelectionTrail 
 		// and also others which share the same grammar name and production index.
-		userSelectionTrail.selections.pop();
+		var popped = userSelectionTrail.selections.pop();
 		
 		var last = getTop(userSelectionTrail.selections);
-		while(last.grammarName === grammarName && last.chosenProductionIndex === chosenProductionIndex) {
-			userSelectionTrail.selections.pop();
-			last = getTop(userSelectionTrail.selections);
+		if((last !== undefined && last !== null)) {
+    		var productionHasEnded = last.chosenSymbolIndex === grammars[last.grammarName].productions[last.chosenProductionIndex].symbols.length - 2;
+    		
+    		while((last !== undefined && last !== null) && (last.grammarName === grammarName) /*&& (last.chosenProductionIndex === chosenProductionIndex*/ && productionHasEnded) {
+    			popped = userSelectionTrail.selections.pop();
+    			last = getTop(userSelectionTrail.selections);
+    			if(last !== undefined && last !== null) {
+    			    productionHasEnded = last.chosenSymbolIndex === grammars[last.grammarName].productions[last.chosenProductionIndex].symbols.length - 2;
+    			}
+    		}
 		}
-		
-		// Now let's do the overwrite.
-		// Also the current grammar name matches the original one.
-		var originalGrammarName = grammars[last.grammarName].productions[last.chosenProductionIndex].symbols[chosenSymbolIndex + 1].symbol;
-		if(originalGrammarName === grammarName) {
-			last.chosenSymbol = grammarName;
-			last.chosenSymbolIndex += 1;		
-			_getSuggestionsForUserSelection(userSelectionTrail, processedGrammars, terminals);
+	   /* if(!last) {
+	        userSelectionTrail.selections.push(popped);
+	        last = popped;
+	    }*/
+		if(last !== undefined && last !== null) {
+    		// Also check the current grammar name matches the original one.
+    		var originalGrammarName = grammars[last.grammarName].productions[last.chosenProductionIndex].symbols[last.chosenSymbolIndex + 1].symbol;
+    		if(originalGrammarName === grammarName) {
+    			// Now let's do the overwrite.
+    			last.chosenSymbol = grammarName;
+    			last.chosenSymbolIndex += 1;			
+    			_getSuggestionsForUserSelection(userSelectionTrail, processedGrammars, terminals);
+    		}
+    		else {
+    		     if(grammarName in grammars) {
+    		         _getSuggestionsFromProductionsStartingWithThisSymbol(userSelectionTrail, originalGrammarName, grammarName, processedGrammars, terminals);
+    		     }
+    		}
 		}
 		else {
-			_getSuggestionsFromProductionsStartingWithThisSymbol(originalGrammarName, grammarName, processedGrammars, terminals);
-		}
+            console.log("wierdly here! Processed last symbol yet no prior symbols too..");
+            _getSuggestionsFromProductionsStartingWithThisSymbol(userSelectionTrail, popped.grammarName, popped.grammarName, [], terminals);
+            return;
+        }
 	}
 	// Got some more symbols to process!
 	else {
@@ -139,7 +162,7 @@ function _getSuggestionsForUserSelection(userSelectionTrail, processedGrammars, 
 		
 		if(nextSymbol.nonTerminal === false) {
 			// Yup, It's a terminal. Easy Peasy, Lemon Squeezy!
-			terminals.push(new UserSelection(grammarName, nextSymbol.symbol, nextSymbolIndex, chosenProductionIndex));
+			terminals.push(new UserSelection(grammarName, nextSymbol.symbol, nextSymbolIndex, chosenProductionIndex, true, nextSymbol.category, nextSymbol.tokenType));
 		}
 		else {
 			// Yeah. God damn, Non-Terminal!!!
@@ -149,22 +172,76 @@ function _getSuggestionsForUserSelection(userSelectionTrail, processedGrammars, 
 }
 
 
-function getSuggestionsFromProductionsStartingWithThisSymbol(originalGrammarName, startingSymbol) {
+function getSuggestionsFromProductionsStartingWithThisSymbol(userSelectionTrail, originalGrammarName, startingSymbol) {
 	var terminals = [];
 	var processedGrammars = [];
-	_getSuggestionsFromProductionsStartingWithThisSymbol(originalGrammarName, startingSymbol, processedGrammars, terminals);
+	_getSuggestionsFromProductionsStartingWithThisSymbol(userSelectionTrail, originalGrammarName, startingSymbol, processedGrammars, terminals);
 	return terminals;
 }
 
-function _getSuggestionsFromProductionsStartingWithThisSymbol(originalGrammarName, startingSymbol, processedGrammars, terminals) {
+function _getSuggestionsFromProductionsStartingWithThisSymbol(userSelectionTrail, originalGrammarName, startingSymbol, processedGrammars, terminals) {
+    console.log("_getSuggestionsFromProductionsStartingWithThisSymbol()\nInput : \n" + JSON.stringify(userSelectionTrail));
+	if(processedGrammars.indexOf(originalGrammarName) >= 0) {
+		return;
+	}
 	var grammar = grammars[originalGrammarName];
+	if(!grammar) {
+		return; // to avoid recursing on terminals.
+	}
 	var productions = grammar.productions;
 	
 	for(var index in productions) {
 		var production = productions[index];
-		if(production.symbols[0] === startingSymbol) {
-			_getSuggestionsForUserSelection([new UserSelection(originalGrammarName, startingSymbol, 0, index, true)], processedGrammars, terminals); // treat this as a terminal.
+		if(production.symbols[0].symbol === startingSymbol) {			
+			if(production.symbols.length > 1) {
+				// very crucial fix.
+				userSelectionTrail.selections.push(new UserSelection(originalGrammarName, null, 0, index, true));
+				processedGrammars.push(originalGrammarName);
+				
+				if(production.symbols[1].nonTerminal === false) {
+					terminals.push(new UserSelection(originalGrammarName, production.symbols[1].symbol, 1, index, true, production.symbols[1].category, production.symbols[1].tokenType));
+				}
+				else  {
+					_getSuggestionsWhenNothingIsChosen(production.symbols[1].symbol, processedGrammars, terminals);	
+				}
+			}
+			else {
+				//_getSuggestionsFromProductionsStartingWithThisSymbol(originalGrammarName, startingSymbol, processedGrammars, terminals);
+				var sel = getTop(userSelectionTrail.selections);
+				sel.chosenSymbol = originalGrammarName;
+				sel.chosenSymbolIndex += 1;
+				_getSuggestionsForUserSelection(userSelectionTrail, processedGrammars, terminals);
+			}			
+		}
+		else {
+			//_getSuggestionsFromProductionsStartingWithThisSymbol(userSelectionTrail, production.symbols[0].symbol, startingSymbol, processedGrammars, terminals);
 		}
 	}
 }
 
+/*
+ Utility function to get the recently
+ added element in the array as if it's a stack.
+ */
+function getTop(arr) {
+    return (arr && arr.length > 0) ? arr[arr.length - 1]
+                                  : undefined;
+};
+
+function UserSelection(grammarName, chosenSymbol, chosenSymbolIndex, chosenProductionIndex, isTerminal, category, tokenType) {
+    this.grammarName = grammarName;
+    this.chosenSymbol = chosenSymbol;
+    this.chosenSymbolIndex = chosenSymbolIndex;
+    this.chosenProductionIndex = chosenProductionIndex;
+    this.isTerminal = isTerminal;
+    this.category = category;
+    this.tokenType = tokenType;
+}
+
+function UserSelectionTrail() {
+    this.selections = [];
+}
+
+UserSelectionTrail.prototype.addSelection = function(userSelection) {
+    this.selections.push(userSelection);
+}

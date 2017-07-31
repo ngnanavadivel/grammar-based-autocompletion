@@ -10,8 +10,10 @@
         <script src="./js/lib/angular.min.js"></script>
         <script src="./js/lib/angular-sanitize.min.js"></script>
         <script src="./js/lib/ui-bootstrap-tpls-0.14.3.min.js"></script>
-        <script src="./js/main.js"></script> 
+        <script src="./js/main2.js"></script> 
         <script src="./js/lib/focusit.js"></script>
+        <script src="./js/grammar2.js"></script>
+        <script src="./js/grammar_engine3.js"></script>
     </head>
     <body ng-app="REApp">
         <script type="text/ng-template" id="dropdownList.html">
@@ -72,7 +74,7 @@
                                                     ng-model="$parent.selected"
                                                     ng-show="ruleinarr[0]" 
                                                     class="form-control" 
-                                                    typeahead="rule as rule.elementName for rule in rules | filter:$viewValue | limitTo:20"
+                                                    typeahead="rule as rule.chosenSymbol for rule in rules | filter:$viewValue | limitTo:20"
                                                     typeahead-on-select="onSelectElement($item, $model, $label);$parent.selected=''"
                                                     ng-style="customstyle"
                                                     typeahead-min-length="0"
@@ -83,7 +85,7 @@
                                                     ng-model="$parent.selected"
                                                     ng-show="ruleinarr[1]" 
                                                     class="form-control" 
-                                                    typeahead="rule as rule.value for rule in nextwords | filter:$viewValue | limitTo:20"
+                                                    typeahead="rule as rule.chosenSymbol for rule in nextwords | filter:$viewValue | limitTo:20"
                                                     typeahead-min-length="0"
                                                     typeahead-on-select="onSelectNextWords($item, $model, $label);$parent.selected=''"
                                                     typeahead-popup-template-url="typeAheadTemplate.html"

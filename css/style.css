@@ -1,0 +1,56 @@
+body,html,.appPanel{position:relative;width:100%;height:100%;top:0px;left:0px;margin:0px;padding:0px;color:white}
+body{background-color:gray;/*padding:10px;*/}
+.appPanel{background-color: rgba(0,0,0,0.5);}
+.container{height: 100%;background-color:rgba(0,0,255,0.1);border-bottom: 10px solid gray;}
+.retitle{border-bottom:2px solid gray;padding-bottom: 5px;}
+
+.ruleCreationPP{width:100%;height:100%;position:absolute;top:0px;left:0px;padding:100px 0px 0px 0px;background-color: rgba(100,100,100,0.5)}
+.ruleCreationPanel,.ruleContainer{position: relative;width: 100%;height: 100%;}
+.ruleContaniner{width:60%;min-height:650px;margin:0px auto;background-color:white;color:black;position:relative;}
+.createRuleHeader{line-height: 44px;height:44px;position:absolute;top:0px;left:0px;background-color:#61b1e3;color:white;font-size:20px;width:100%;z-index:100}
+.closeBtn{font-size: 30px;background-color: transparent;border: none;margin: 0px;padding: 0px;margin-right: 10px;}
+.ruleContentPanel{position: absolute;width: 100%;height: 100%;padding-top: 64px;}
+.form-wrap{margin-left: 20px;}
+
+.ruleContentFooter{position:absolute;left:0px;bottom:0px;width:100%;height:56px;padding:10px;}
+.ruleContentFooter .footerWrap{position:relative;left:0px;top:0px;width:100%;height:100%;}
+.ruleinWrap{position: absolute;width: 100%;padding:0px 75px 0px 90px;height:100%;}
+.ruleinContainer{height:100%;}
+#lblCompleteWord {
+	font-family: Consolas;
+}
+.rulelable{position: absolute;left: 0px;top: 0px;line-height: 35px; }
+.rulelable.disablelable{color:gray;height:100%;}
+.ruleinContainer input{width: 100%;margin:0px 5px;height:100%;}
+.rulelist li{list-style:none}
+.custom-dropdown-wrapper{display: block; padding: 0;}
+.custom-dropdown-list{display:table-cell; border-right: 1px solid rgba(0,0,0,0.6); overflow: hidden; vertical-align: top; padding-bottom: 5px;}
+.custom-dropdown-list:last-child{border-right: none;}
+.custom-dropdown-wrapper .dropdown-menu{border: none; box-shadow: none; position: relative; float: none; top: 0;}
+.custom-dropdown-header{padding: 5px 15px 4px; background-color: rgba(0,0,0,0.05); font-weight: bold;}
+.custom-dropdown-footer{clear: both;}
+dropdown-list{display: block;}
+
+.KEYWORD {
+	color: #ff8000;
+}
+
+.VARIABLE {
+	color: #8000ff;
+}
+
+.OPERATOR {
+	color: #008040;
+}
+
+.PARANTHESIS {
+	color: #ff80c0;
+}
+
+.CONSTANT {
+	color: #ff0080;
+}
+
+.BRACES {
+	color: red;
+}
